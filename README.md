@@ -23,7 +23,7 @@ Provides keyword inputs to quickly switch between headphones, speakers, and an e
 | Headphones       | `ash`   |
 | Speakers         | `asp`   |
 | External         | `asx`   |
-| Search Inputs    | `aset`  |
+| Search Outputs   | `aset`  |
 
 The first time each is used, it will prompt you to select the audio source for that device and then save it for next time _(which may take a few seconds to take affect)_. The next time it should switch to that device immediately.
 
