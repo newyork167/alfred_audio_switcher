@@ -470,6 +470,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>EB16AC89-62A3-4F37-9E92-89EA0872CE9D</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>1495BA6A-8FB6-4DE4-81B5-3CFE151A840E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>Mark Beattie</string>
@@ -1203,7 +1216,7 @@ fi
 				<key>argumenttrimmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
-				<integer>2</integer>
+				<integer>1</integer>
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
@@ -1217,12 +1230,19 @@ fi
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string></string>
+				<string>Getting Devices...</string>
 				<key>script</key>
 				<string>require "json"
 
+STDERR.puts "ARGV length: #{ARGV.length}"
+STDERR.puts "Processing #{ARGV[0]}"
+
 audioswitch = ENV["audioswitch_path"]
 devices = `#{audioswitch} -a`.split(/\n/).map {|device_name| { title: device_name, subtitle: device_name, arg: device_name, autocomplete: device_name, match: device_name }}
+
+if ARGV.length &gt; 0
+	devices = devices.select{ |device| device.title[/#{ARGV[0]}/i] }
+end
 
 json = { items: devices }.to_json
 
@@ -1241,7 +1261,7 @@ print json
 				<key>type</key>
 				<integer>2</integer>
 				<key>withspace</key>
-				<false/>
+				<true/>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
@@ -1269,6 +1289,90 @@ print json
 			<string>2F7E8A8B-5060-4A77-B416-83E500C7261F</string>
 			<key>version</key>
 			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>68</integer>
+				<key>keyword</key>
+				<string>aset</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Getting Devices...</string>
+				<key>script</key>
+				<string>import sys
+import os
+import re
+import json
+import subprocess
+
+
+audioswitch_binary = os.environ['audioswitch_path']
+
+def alfred_output(devices):
+    try:
+        return json.dumps({'items': [{"title": device, "subtitle": "Available" if device != current_device else "Current", "arg": device, "autocomplete": device} for device in devices]})
+    except Exception as ex:
+        sys.stderr.write(ex)
+        return json.dumps({'items': [{"title": "Error", "subtitle": str(ex), "arg": "Error", "autocomplete": "Error"}]})
+
+def get_audio_devices():
+    p = subprocess.Popen([audioswitch_binary, '-a', '-t', 'output'], stdout=subprocess.PIPE)
+    return p.communicate()[0].decode('utf-8').split('\n')[:-1]
+
+def get_current_audio_device():
+    p = subprocess.Popen([audioswitch_binary, '-c'], stdout=subprocess.PIPE)
+    return p.communicate()[0].decode('utf-8').split('\n')[0]
+
+current_device = get_current_audio_device()
+devices = get_audio_devices()
+if len(sys.argv) &gt; 1:
+    query = sys.argv[1]
+    sys.stderr.write(f"{query=}\n")
+    # devices = list(filter(lambda x: re.search(query, x, re.IGNORECASE), devices))
+    devices = [device for device in devices if query.lower() in device.lower()]
+if len(devices) == 0:
+    devices = ['No devices found']
+    
+sys.stdout.write(alfred_output(devices))
+</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string></string>
+				<key>title</key>
+				<string>Select audio source</string>
+				<key>type</key>
+				<integer>9</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>EB16AC89-62A3-4F37-9E92-89EA0872CE9D</string>
+			<key>version</key>
+			<integer>3</integer>
 		</dict>
 	</array>
 	<key>readme</key>
@@ -1489,19 +1593,26 @@ Requires switchaudiosource to be installed with `brew install switchaudio-osx`</
 			<key>ypos</key>
 			<real>95</real>
 		</dict>
+		<key>EB16AC89-62A3-4F37-9E92-89EA0872CE9D</key>
+		<dict>
+			<key>xpos</key>
+			<real>1490</real>
+			<key>ypos</key>
+			<real>635</real>
+		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
 	<array/>
 	<key>variables</key>
 	<dict>
 		<key>audioswitch_path</key>
-		<string>/usr/local/bin/switchaudiosource</string>
+		<string>/opt/homebrew/bin/switchaudiosource</string>
 		<key>external_device</key>
 		<string></string>
 		<key>headphones_device</key>
-		<string>External Headphones</string>
+		<string></string>
 		<key>speakers_device</key>
-		<string>MacBook Pro Speakers</string>
+		<string></string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>
