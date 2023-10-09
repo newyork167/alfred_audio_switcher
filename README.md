@@ -27,7 +27,7 @@ Provides keyword inputs to quickly switch between headphones, speakers, and an e
 
 The first time each is used, it will prompt you to select the audio source for that device and then save it for next time _(which may take a few seconds to take affect)_. The next time it should switch to that device immediately.
 
-**NOTE:** the macOS multimedia volume controls don't don't seem to affect the volume of external audio devices.
+**NOTE:** the macOS multimedia volume controls don't don't seem to affect the volume of external audio devices. To work around this, you will need to install something like [SoundSource](https://rogueamoeba.com/soundsource/) which will allow you to control audio levels for external devices such as Komplete Audio 6 and Focusrite Scarletts.
 
 ### Changing saved audio devices
 
